@@ -14,10 +14,6 @@ app.use((err, req, res, next) => {
   next();
 });
 
-app.use((err, req, res, next) => {
-  res.send("Error Occured");
-});
-
 app.get("/", (req, res) => {
   res.send("Halo Yusri Alfiyya!");
 });
@@ -33,6 +29,10 @@ app.get("/coba", (req, res) => {
 
 app.get("/cobalagi", (req, res) => {
   res.status(401).send("Error gan");
+});
+
+app.use((err, req, res, next) => {
+  res.send("Error Occured");
 });
 
 app.listen(3000);
