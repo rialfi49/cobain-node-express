@@ -32,7 +32,7 @@ app.get("/coba", (req, res) => {
 });
 
 app.get("/cobalagi", (req, res) => {
-  res.status(401).send("Unauthorized");
+  res.status(401).send("Error gan");
 });
 
 app.listen(3000);
