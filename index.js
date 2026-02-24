@@ -31,6 +31,10 @@ app.get("/coba", (req, res) => {
   res.send("KADA BATCH 3");
 });
 
+app.get("/cobalagi", (req, res) => {
+  res.status(401).send("Unauthorized");
+});
+
 app.listen(3000);
 // app.listen(3000, () => {
 //   console.log("Server running on http://localhost:3000");
