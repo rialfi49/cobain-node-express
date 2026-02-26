@@ -1,44 +1,31 @@
 import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import notesRouter from "./routes/notes.js";
+
+dotenv.config();
 
 const app = express();
 
-// app.use((req, res, next) => {
-//   console.log(`lewat jalur ini${req.path}`);
-//   next();
-// });
-app.use((err, req, res, next) => {
-  if (false) {
-    next(new Error("Not Authorized"));
-    return;
-  }
-  next();
-});
+app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Halo Yusri Alfiyya!");
+  res.send("YUSRI DISINI");
 });
 
-app.get("/say/:greeting", (req, res) => {
-  const { greeting } = req.params;
-  res.send(greeting);
-});
+app.use("/notes", notesRouter);
 
-app.get("/coba", (req, res) => {
-  res.send("KADA BATCH 3");
-});
+const PORT = process.env.PORT || 3000;
 
-app.get("/cobalagi", (req, res) => {
-  res.status(401).send("Error gan");
-});
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log("Database connected");
 
-app.use((err, req, res, next) => {
-  res.send("Error Occured");
-});
-
-app.listen(3000);
-// app.listen(3000, () => {
-//   console.log("Server running on http://localhost:3000");
-// });
-
-// app.use((err, req, res, next) => {
-//   res.send('Error Occured')};)
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Database connection error:", err);
+  });
