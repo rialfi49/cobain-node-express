@@ -1,13 +1,19 @@
 let notes = [
   {
     id: 1,
+    author: "first author",
     title: "first note",
     content: "My first note is here.",
   },
 ];
 
 export const listNotes = () => {
-  return notes.map(({ id, title }) => ({ id, title }));
+  return notes.map(({ id, author, title, content }) => ({
+    id,
+    author,
+    title,
+    content,
+  }));
 };
 
 export const getNote = (id) => {
@@ -18,11 +24,12 @@ export const getNote = (id) => {
   return note;
 };
 
-export const createNote = (title, content) => {
+export const createNote = (author, title, content) => {
   const lastId = notes.length ? notes[notes.length - 1].id : 0;
 
   const newNote = {
     id: lastId + 1,
+    author,
     title,
     content,
   };
@@ -31,7 +38,7 @@ export const createNote = (title, content) => {
   return newNote;
 };
 
-export const updateNote = (id, title, content) => {
+export const updateNote = (id, author, title, content) => {
   const index = notes.findIndex((n) => n.id === id);
 
   if (index === -1) {
@@ -40,6 +47,7 @@ export const updateNote = (id, title, content) => {
 
   notes[index] = {
     ...notes[index],
+    author,
     title,
     content,
   };

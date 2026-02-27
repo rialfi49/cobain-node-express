@@ -36,7 +36,7 @@ router.get("/:id", async (req, res, next) => {
 // CREATE
 // =====================
 router.post("/", async (req, res, next) => {
-  const { title, content } = req.body;
+  const { author, title, content } = req.body;
 
   if (!title || !content) {
     return res.status(400).json({
@@ -45,7 +45,7 @@ router.post("/", async (req, res, next) => {
   }
 
   try {
-    const note = await Post.create({ title, content });
+    const note = await Post.create({ author, title, content });
     res.status(201).json(note);
   } catch (error) {
     next(error);
@@ -57,11 +57,11 @@ router.post("/", async (req, res, next) => {
 // =====================
 router.put("/:id", async (req, res, next) => {
   try {
-    const { title, content } = req.body;
+    const { author, title, content } = req.body;
 
     const updated = await Post.findByIdAndUpdate(
       req.params.id,
-      { title, content },
+      { author, title, content },
       { new: true }, // biar return data terbaru
     );
 
