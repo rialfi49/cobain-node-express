@@ -1,7 +1,6 @@
 import express from "express";
 import { snap, coreApi } from "../utils/midtrans.js";
-import dotenv from "dotenv";
-dotenv.config();
+
 const router = express.Router();
 
 // ============================

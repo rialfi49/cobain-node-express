@@ -1,65 +1,55 @@
 import dotenv from "dotenv";
-dotenv.config(); //HARUS PALING ATAS, sebelum import lain
+dotenv.config();
 
 import express from "express";
 import mongoose from "mongoose";
+import cors from "cors";
+
 import notesRouter from "./routes/notes.js";
 import usersRouter from "./routes/users.js";
 import emailRouter from "./routes/email.js";
 import paymentRouter from "./routes/payment.js";
 
-import cors from "cors";
-
-console.log("MONGO_URI:", process.env.MONGO_URI);
-console.log("MIDTRANS_SERVER_KEY:", process.env.MIDTRANS_SERVER_KEY);
-console.log("MIDTRANS_CLIENT_KEY:", process.env.MIDTRANS_CLIENT_KEY);
-
 const app = express();
 
 app.use(cors({ origin: "*" }));
-
 app.use(express.json());
+
+// routes
 app.use("/notes", notesRouter);
 app.use("/users", usersRouter);
 app.use("/email", emailRouter);
 app.use("/payment", paymentRouter);
-// app.use("/email", (await import("./routes/email.js")).default);
 
-await mongoose.connect(process.env.MONGO_URI);
-console.log("Database connected");
+// test endpoint
+app.get("/", (req, res) => {
+  res.send("API berjalan 🚀");
+});
 
-// app.listen(5000, () => {
-//   console.log("Server running on port 5000");
-// });
+// koneksi database (aman untuk serverless)
+let isConnected = false;
 
-// import express from "express";
-// import mongoose from "mongoose";
-// import dotenv from "dotenv";
-// import notesRouter from "./routes/notes.js";
+async function connectDB() {
+  if (isConnected) return;
 
-// dotenv.config();
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    isConnected = true;
+    console.log("Database connected");
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+  }
+}
 
-// const app = express();
+connectDB();
 
-// app.use(express.json());
+// export untuk Vercel
+export default app;
 
-// app.get("/", (req, res) => {
-//   res.send("YUSRI DISINI");
-// });
-
-// app.use("/notes", notesRouter);
-
-// const PORT = process.env.PORT || 3000;
-
-// mongoose
-//   .connect(process.env.MONGODB_URI)
-//   .then(() => {
-//     console.log("Database connected");
-
-//     app.listen(PORT, () => {
-//       console.log(`Server running on port ${PORT}`);
-//     });
-//   })
-//   .catch((err) => {
-//     console.error("Database connection error:", err);
-//   });
+// hanya untuk local development
+if (process.env.NODE_ENV !== "production") {
+  const PORT = 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
