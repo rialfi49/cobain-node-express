@@ -1,14 +1,21 @@
 import { Router } from "express";
 import { Post } from "../models/index.js";
+import authMiddleware from "../middleware/auth.js";
 
 const router = Router();
 
+// 🔐 Semua route pakai auth
+router.use(authMiddleware);
+
 // =====================
-// GET ALL
+// GET ALL (hanya milik user login)
 // =====================
 router.get("/", async (req, res, next) => {
   try {
-    const notes = await Post.find();
+    const notes = await Post.find({ user: req.user.id }).populate(
+      "user",
+      "username email",
+    ); // 🔥 tampilkan username/email
     res.json(notes);
   } catch (error) {
     next(error);
@@ -16,11 +23,14 @@ router.get("/", async (req, res, next) => {
 });
 
 // =====================
-// GET BY ID
+// GET BY ID (hanya milik user login)
 // =====================
 router.get("/:id", async (req, res, next) => {
   try {
-    const note = await Post.findById(req.params.id);
+    const note = await Post.findOne({
+      _id: req.params.id,
+      user: req.user.id,
+    });
 
     if (!note) {
       return res.status(404).json({ message: "Note not found" });
@@ -36,7 +46,7 @@ router.get("/:id", async (req, res, next) => {
 // CREATE
 // =====================
 router.post("/", async (req, res, next) => {
-  const { author, title, content } = req.body;
+  const { title, content } = req.body;
 
   if (!title || !content) {
     return res.status(400).json({
@@ -45,7 +55,18 @@ router.post("/", async (req, res, next) => {
   }
 
   try {
-    const note = await Post.create({ author, title, content });
+    const note = await Post.create({
+      title,
+      content,
+
+      // 🔥 tampilkan username/email
+      // author: req.user.username,
+      // author: req.user.username || req.user.email,
+
+      // 🔐 relasi ke user
+      user: req.user.id,
+    });
+
     res.status(201).json(note);
   } catch (error) {
     next(error);
@@ -53,16 +74,22 @@ router.post("/", async (req, res, next) => {
 });
 
 // =====================
-// UPDATE
+// UPDATE (hanya milik user login)
 // =====================
 router.put("/:id", async (req, res, next) => {
   try {
-    const { author, title, content } = req.body;
+    const { title, content } = req.body;
 
-    const updated = await Post.findByIdAndUpdate(
-      req.params.id,
-      { author, title, content },
-      { new: true }, // biar return data terbaru
+    const updated = await Post.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        user: req.user.id, // 🔐 pastikan hanya update miliknya
+      },
+      {
+        title,
+        content,
+      },
+      { new: true },
     );
 
     if (!updated) {
@@ -76,31 +103,20 @@ router.put("/:id", async (req, res, next) => {
 });
 
 // =====================
-// DELETE
+// DELETE (hanya milik user login)
 // =====================
 router.delete("/:id", async (req, res, next) => {
   try {
-    const deleted = await Post.findByIdAndDelete(req.params.id);
+    const deleted = await Post.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user.id, // 🔐 hanya bisa hapus miliknya
+    });
 
     if (!deleted) {
       return res.status(404).json({ message: "Note not found" });
     }
 
     res.json({ message: "Deleted successfully" });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// =====================
-// BONUS: CREATE MULTIPLE
-// =====================
-router.post("/bulk", async (req, res, next) => {
-  try {
-    const notes = await Post.create(req.body);
-    // body harus array of objects
-
-    res.status(201).json(notes);
   } catch (error) {
     next(error);
   }
