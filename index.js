@@ -15,16 +15,23 @@ const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-app.use(async (req, res, next) => {
-  await connectDB();
-  next();
-});
+// koneksi database (serverless safe)
+let isConnected = false;
 
-// routes
-app.use("/notes", notesRouter);
-app.use("/users", usersRouter);
-app.use("/email", emailRouter);
-app.use("/payment", paymentRouter);
+async function connectDB() {
+  if (isConnected) return;
+
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    isConnected = true;
+    console.log("Database connected");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+  }
+}
+
+// connect saat server start
+await connectDB();
 
 // test endpoint
 app.get("/", (req, res) => {
@@ -39,30 +46,16 @@ app.get("/env-test", (req, res) => {
   });
 });
 
-// koneksi database (aman untuk serverless)
-let isConnected = false;
-
-async function connectDB() {
-  if (isConnected) {
-    return;
-  }
-
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-
-    isConnected = true;
-    console.log("Database connected");
-  } catch (error) {
-    console.error("MongoDB connection error:", error);
-  }
-}
-
-connectDB();
+// routes
+app.use("/notes", notesRouter);
+app.use("/users", usersRouter);
+app.use("/email", emailRouter);
+app.use("/payment", paymentRouter);
 
 // export untuk Vercel
 export default app;
 
-// hanya untuk local development
+// hanya untuk local
 if (process.env.NODE_ENV !== "production") {
   const PORT = 5000;
   app.listen(PORT, () => {
