@@ -26,6 +26,14 @@ app.get("/", (req, res) => {
   res.send("API berjalan 🚀");
 });
 
+app.get("/env-test", (req, res) => {
+  res.json({
+    mongo: process.env.MONGO_URI ? "OK" : "missing",
+    midtrans: process.env.MIDTRANS_SERVER_KEY ? "OK" : "missing",
+    email: process.env.EMAIL_USER ? "OK" : "missing",
+  });
+});
+
 // koneksi database (aman untuk serverless)
 let isConnected = false;
 
