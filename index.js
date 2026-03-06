@@ -41,9 +41,17 @@ async function connectDB() {
   if (isConnected) return;
 
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    isConnected = true;
-    console.log("Database connected");
+    mongoose
+      .connect(process.env.MONGO_URI)
+      .then(() => {
+        console.log("Database connected");
+      })
+      .catch((err) => {
+        console.error("MongoDB connection error:", err);
+      });
+    // await mongoose.connect(process.env.MONGO_URI);
+    // isConnected = true;
+    // console.log("Database connected");
   } catch (err) {
     console.error("MongoDB connection error:", err);
   }
