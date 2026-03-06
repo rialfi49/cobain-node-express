@@ -38,22 +38,17 @@ app.get("/env-test", (req, res) => {
 let isConnected = false;
 
 async function connectDB() {
-  if (isConnected) return;
+  if (isConnected) {
+    return;
+  }
 
   try {
-    mongoose
-      .connect(process.env.MONGO_URI)
-      .then(() => {
-        console.log("Database connected");
-      })
-      .catch((err) => {
-        console.error("MongoDB connection error:", err);
-      });
-    // await mongoose.connect(process.env.MONGO_URI);
-    // isConnected = true;
-    // console.log("Database connected");
-  } catch (err) {
-    console.error("MongoDB connection error:", err);
+    await mongoose.connect(process.env.MONGO_URI);
+
+    isConnected = true;
+    console.log("Database connected");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
   }
 }
 
