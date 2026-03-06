@@ -15,6 +15,11 @@ const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
+
 // routes
 app.use("/notes", notesRouter);
 app.use("/users", usersRouter);
